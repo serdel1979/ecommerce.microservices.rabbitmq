@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Products.API.Infra;
+using Products.API.Repository;
 using Products.API.Utilities;
 using System.Reflection;
 
@@ -18,6 +19,8 @@ builder.Services.AddDbContext<ProductsContext>(option =>
 {
     option.UseNpgsql(builder.Configuration.GetConnectionString("Connect"));
 });
+
+builder.Services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
 builder.Services.AddAutoMapper(typeof(Mapping));
 

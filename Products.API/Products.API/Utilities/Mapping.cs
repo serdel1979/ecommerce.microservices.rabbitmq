@@ -9,7 +9,19 @@ namespace Products.API.Utilities
         public Mapping()
         {
             CreateMap<Category, CategoryDTO>().ReverseMap();
-            CreateMap<Product, ProductDTO>().ReverseMap();
+            CreateMap<Product, ProductResponseDTO>()
+                .ForMember(x => x.Category, options => options.MapFrom(MapCategory));
+            CreateMap<ProductDTO, Product>();
         }
+
+        private Category MapCategory(Product product, ProductResponseDTO productResponseDto)
+        {
+
+            //acá puedo agregar lógica de mapeo entre los dto
+
+            return product.Category;
+        }
+
+
     }
 }

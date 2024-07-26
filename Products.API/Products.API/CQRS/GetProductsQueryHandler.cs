@@ -5,24 +5,32 @@ using Products.API.CQRS.Queries;
 using Products.API.DTOs;
 using Products.API.Infra;
 using Products.API.Model;
+using Products.API.Repository;
 
 namespace Products.API.CQRS
 {
-    public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, List<ProductResponseDTO>>
+    public class GetProductsQueryHandler : IRequestHandler<GetProductsQuery, (List<ProductResponseDTO> Products, int TotalRecords)>
     {
-        private readonly ProductsContext _context;
+
+        private readonly IGenericRepository<Product> _repository;
         private readonly IMapper _mapper;
 
-        public GetProductsQueryHandler(ProductsContext context, IMapper mapper)
+        public GetProductsQueryHandler(IGenericRepository<Product> repository, IMapper mapper)
         {
-            this._context = context;
+
+            this._repository = repository;
             this._mapper = mapper;
         }
-
-        public async Task<List<ProductResponseDTO>> Handle(GetProductsQuery request, CancellationToken cancellationToken)
+        //Task<(List<Product> Products, int TotalRecords)>
+        public async Task<(List<ProductResponseDTO> Products, int TotalRecords)> Handle(GetProductsQuery request, CancellationToken cancellationToken)
         {
-            var products = await _context.Products.Include(c=>c.Category).ToListAsync();                       
-            return _mapper.Map<List<ProductResponseDTO>>(products);
+
+            var (products, totalRecords) = await _repository.GetAll(request.Page, request.Size, "Category");
+
+            var productDtos = _mapper.Map<List<ProductResponseDTO>>(products);
+
+            return (productDtos, totalRecords);
+
         }
     }
 }
